@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 from django.core.validators import RegexValidator
 from django.db import models
 from datetime import datetime
+from django.forms import ModelForm
 
 
 class Customer(models.Model):
@@ -16,7 +17,7 @@ class Customer(models.Model):
     date = models.DateField(help_text="Date when customer was acquired", null=True, auto_now_add=True)
 
     def __str__(self):
-        return "{}|{}".format(self.name, self.phone_number)
+        return "{} | {}".format(self.name, self.phone_number)
 
 
 class Category(models.Model):
@@ -27,9 +28,17 @@ class Category(models.Model):
         return self.name
 
 
+class Ingredient(models.Model):
+    name = models.CharField(help_text="Thing you use to create your product", max_length=255, unique=True)
+    cost = models.FloatField(verbose_name="Cost Price")
+
+    def __str__(self):
+        return self.name
+
+
 class Product(models.Model):
     name = models.CharField(help_text="Name of Item", max_length=255, unique=True)
-    # image = models.ImageField(upload_to=upload_image_path, null=True, blank=True)  # blank means its not required in django admin
+    ingredients = models.ManyToManyField(Ingredient)
     category = models.ForeignKey(Category, help_text="Category of this product item")
     quantity = models.IntegerField(help_text="Quantity of item stored")
     unit = models.CharField(help_text="units of quantity", max_length=255, null=True, blank=True)
@@ -37,8 +46,7 @@ class Product(models.Model):
     selling_price = models.IntegerField(name="Selling Price", help_text="Selling price of product", null=True, blank=True)
 
     def __str__(self):
-        # return self.name
-        return "{}|{}".format(self.name, self.category)
+        return self.name
 
 
 class Order(models.Model):
@@ -50,13 +58,19 @@ class Order(models.Model):
     timestamp = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return "{} - {}".format(self.id, self.customer.name)
+        return "{} | {} | {}".format(self.id, self.customer.name, self.total_price)
 
 
-class OrderItems(models.Model):
+class OrderItem(models.Model):
     order_id = models.ForeignKey(Order)
     product_id = models.ForeignKey(Product)
-    quantity = models.IntegerField(name="Quantity", help_text="units of product sold to customer", null=True)
+    quantity = models.IntegerField(name="Quantity", help_text="units of product sold to customer", null=False, default=1)
 
     def __str__(self):
-        return "{} | {}".format(self.id, self.product_id)
+        return "{} | {}".format(self.order_id, self.product_id)
+
+
+class ProductForm(ModelForm):
+    class Meta:
+        model = Product
+        fields = ['name', 'ingredients', 'category', 'quantity', 'unit', 'selling_price']
