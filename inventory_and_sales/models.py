@@ -41,26 +41,25 @@ class Product(models.Model):
     category = models.ForeignKey(Category, help_text="Category of this product item")
     quantity = models.IntegerField(help_text="Quantity of item stored")
     unit = models.CharField(help_text="units of quantity", max_length=255, null=True, blank=True)
-    cost_price = models.IntegerField(help_text="Cost of your own purchase/cost of production of this product", null=True, blank=True)
-    selling_price = models.IntegerField(help_text="Selling price of product", null=True, blank=True)
+    profit_percent = models.IntegerField(help_text='profit in % that you want from this product', default=0)
+    cost_price = models.FloatField(help_text="Cost of your own purchase/cost of production of this product", null=True, blank=True)
+    selling_price = models.FloatField(help_text="Selling price of product", null=False, blank=False, default=0.0)
 
     def __str__(self):
         return self.name
 
-    # def save(self, *args, **kwargs):
-    #     super(Product, self).save(*args, **kwargs)
-    #     print("Updating Cost Price Now")
-    #     print(self.ingredients.all())
-    #     print(Ingredient.objects.all())
-    #     #self.cost_price =
-    #     # super(Product, self).save(*args, **kwargs)
+    def save(self, *args, **kwargs):
+        # TODO: Calculate Cost Price from ingredients cost
+        print("Updating Selling Price Now")
+        self.selling_price = self.cost_price + (self.cost_price*(self.profit_percent/100.0))
+        super(Product, self).save(*args, **kwargs)
 
 
 class Order(models.Model):
     customer = models.ForeignKey(Customer)
     delivery_status = models.BooleanField(help_text="Is the order delivered?")
     payment_status = models.BooleanField(help_text="Is the payment received from customer?")
-    order_datetime = models.DateTimeField(help_text="Date and time when order was placed", null=True, default=datetime.now())
+    order_datetime = models.DateTimeField(name="Datetime", help_text="Date and time when order was placed", null=True, default=datetime.now())
     total_price = models.FloatField(verbose_name="Total Amount", default=0.0, null=True)
     timestamp = models.DateTimeField(auto_now=True)
 
