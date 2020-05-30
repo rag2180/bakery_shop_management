@@ -37,7 +37,7 @@ class Ingredient(models.Model):
 
 class Product(models.Model):
     name = models.CharField(help_text="Name of Item", max_length=255, unique=True)
-    ingredients = models.ManyToManyField(Ingredient)
+    ingredients = models.ManyToManyField(Ingredient, related_name='ingredients')
     category = models.ForeignKey(Category, help_text="Category of this product item")
     quantity = models.IntegerField(help_text="Quantity of item stored")
     unit = models.CharField(help_text="units of quantity", max_length=255, null=True, blank=True)
@@ -47,12 +47,20 @@ class Product(models.Model):
     def __str__(self):
         return self.name
 
+    # def save(self, *args, **kwargs):
+    #     super(Product, self).save(*args, **kwargs)
+    #     print("Updating Cost Price Now")
+    #     print(self.ingredients.all())
+    #     print(Ingredient.objects.all())
+    #     #self.cost_price =
+    #     # super(Product, self).save(*args, **kwargs)
+
 
 class Order(models.Model):
     customer = models.ForeignKey(Customer)
     delivery_status = models.BooleanField(help_text="Is the order delivered?")
     payment_status = models.BooleanField(help_text="Is the payment received from customer?")
-    order_datetime = models.DateTimeField(name="Datetime", help_text="Date and time when order was placed", null=True, default=datetime.now())
+    order_datetime = models.DateTimeField(help_text="Date and time when order was placed", null=True, default=datetime.now())
     total_price = models.FloatField(verbose_name="Total Amount", default=0.0, null=True)
     timestamp = models.DateTimeField(auto_now=True)
 
@@ -67,3 +75,8 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return "{} | {}".format(self.order_id, self.product_id)
+
+    def save(self, *args, **kwargs):
+        self.order_id.total_price += (self.product_id.selling_price * self.quantity)
+        self.order_id.save(*args, **kwargs)
+        super(OrderItem, self).save(*args, **kwargs)
