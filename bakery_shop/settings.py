@@ -25,7 +25,7 @@ SECRET_KEY = 'higrko6h1r+6!#^s^_r*o#*zy^wyd0o(uw-$%+rt++=pt+xck7'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['karans-bake-house.herokuapp.com/']
 
 
 # Application definition
