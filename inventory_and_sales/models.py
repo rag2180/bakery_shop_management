@@ -38,7 +38,7 @@ class Ingredient(models.Model):
 class Product(models.Model):
     name = models.CharField(help_text="Name of Item", max_length=255, unique=True)
     ingredients = models.ManyToManyField(Ingredient, related_name='ingredients')
-    category = models.ForeignKey(Category, help_text="Category of this product item")
+    category = models.ForeignKey(Category, help_text="Category of this product item", on_delete=models.CASCADE)
     quantity = models.IntegerField(help_text="Quantity of item stored")
     unit = models.CharField(help_text="units of quantity", max_length=255, null=True, blank=True)
     profit_percent = models.IntegerField(help_text='profit in % that you want from this product', default=0)
@@ -56,7 +56,7 @@ class Product(models.Model):
 
 
 class Order(models.Model):
-    customer = models.ForeignKey(Customer)
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     delivery_status = models.BooleanField(help_text="Is the order delivered?")
     payment_status = models.BooleanField(help_text="Is the payment received from customer?")
     order_datetime = models.DateTimeField(name="Datetime", help_text="Date and time when order was placed", null=True, default=datetime.now())
@@ -68,8 +68,8 @@ class Order(models.Model):
 
 
 class OrderItem(models.Model):
-    order_id = models.ForeignKey(Order)
-    product_id = models.ForeignKey(Product)
+    order_id = models.ForeignKey(Order, on_delete=models.CASCADE)
+    product_id = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.IntegerField(help_text="units of product sold to customer", null=False, default=1)
 
     def __str__(self):
