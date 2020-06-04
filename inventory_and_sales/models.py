@@ -29,30 +29,49 @@ class Category(models.Model):
 
 class Ingredient(models.Model):
     name = models.CharField(help_text="Thing you use to create your product", max_length=255, unique=True)
-    cost = models.FloatField(verbose_name="Cost Price")
+    unit = models.CharField(choices=[("g", "gram"), ("ltr", "liter"), ("kg", "kilogram")],
+                            help_text="unit of measurement of this quantity", max_length=255, default="g")
+    unit_cost = models.FloatField(verbose_name="Cost Price per unit")
 
     def __str__(self):
-        return self.name
+        return self.name+" | Rs."+str(self.unit_cost)+"/"+str(self.unit)
 
 
 class Product(models.Model):
     name = models.CharField(help_text="Name of Item", max_length=255, unique=True)
-    ingredients = models.ManyToManyField(Ingredient, related_name='ingredients')
     category = models.ForeignKey(Category, help_text="Category of this product item", on_delete=models.CASCADE)
     quantity = models.IntegerField(help_text="Quantity of item stored")
     unit = models.CharField(help_text="units of quantity", max_length=255, null=True, blank=True)
     profit_percent = models.IntegerField(help_text='profit in % that you want from this product', default=0)
-    cost_price = models.FloatField(help_text="Cost of your own purchase/cost of production of this product", null=True, blank=True)
+    cost_price = models.FloatField(help_text="This is calculated using ingredients of your product.", null=True,
+                                   blank=True)
     selling_price = models.FloatField(help_text="Selling price of product", null=False, blank=False, default=0.0)
 
     def __str__(self):
         return self.name
 
     def save(self, *args, **kwargs):
-        # TODO: Calculate Cost Price from ingredients cost
-        print("Updating Selling Price Now")
+        self.cost_price = 0
+        all_product_ingredients = ProductIngredient.objects.filter(product=self)
+        for i in all_product_ingredients:
+            ingredient_unit_cost = i.ingredient.unit_cost
+            ingredient_quantity = i.quantity
+            ingredient_total_cost = ingredient_unit_cost*ingredient_quantity
+            self.cost_price += ingredient_total_cost
         self.selling_price = self.cost_price + (self.cost_price*(self.profit_percent/100.0))
         super(Product, self).save(*args, **kwargs)
+
+
+class ProductIngredient(models.Model):
+    """
+    Stores quantity of every ingredient in every product
+    """
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
+    quantity = models.IntegerField(help_text="quantity of unit of this ingredient in a product")
+
+    def __str__(self):
+        return self.product.name+" | "+self.ingredient.name
 
 
 class Order(models.Model):
