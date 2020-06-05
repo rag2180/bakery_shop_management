@@ -28,8 +28,9 @@ class Category(models.Model):
 
 
 class Ingredient(models.Model):
-    name = models.CharField(help_text="Thing you use to create your product", max_length=255, unique=True)
-    unit = models.CharField(choices=[("g", "gram"), ("ltr", "liter"), ("kg", "kilogram")],
+    name = models.CharField(help_text='Thing you use to create your product', max_length=255, unique=True)
+    unit = models.CharField(choices=[("g", "gram"), ("ltr", "liter"), ("kg", "kilogram"), ("pc", "pieces"),
+                                     ("tbsp", "table spoon"), ("tsp", "tea spoon")],
                             help_text="unit of measurement of this quantity", max_length=255, default="g")
     unit_cost = models.FloatField(verbose_name="Cost Price per unit")
 
@@ -37,15 +38,22 @@ class Ingredient(models.Model):
         return self.name+" | Rs."+str(self.unit_cost)+"/"+str(self.unit)
 
 
+class OverheadItem(models.Model):
+    name = models.CharField(help_text='Eg: Electricity, Labour, Packaging etc.', max_length=255)
+
+    def __str__(self):
+        return self.name
+
+
 class Product(models.Model):
     name = models.CharField(help_text="Name of Item", max_length=255, unique=True)
     category = models.ForeignKey(Category, help_text="Category of this product item", on_delete=models.CASCADE)
-    quantity = models.IntegerField(help_text="Quantity of item stored")
-    unit = models.CharField(help_text="units of quantity", max_length=255, null=True, blank=True)
+    # quantity = models.IntegerField(help_text="Quantity of item stored")
+    # unit = models.CharField(help_text="units of quantity", max_length=255, null=True, blank=True)
     profit_percent = models.IntegerField(help_text='profit in % that you want from this product', default=0)
-    cost_price = models.FloatField(help_text="This is calculated using ingredients of your product.", null=True,
-                                   blank=True)
-    selling_price = models.FloatField(help_text="Selling price of product", null=False, blank=False, default=0.0)
+    cost_price = models.FloatField(help_text="This is calculated using ingredients and overheads of your product.",
+                                   null=True, blank=True)
+    selling_price = models.FloatField(help_text="Calculated as per profit", null=False, blank=False, default=0.0)
 
     def __str__(self):
         return self.name
@@ -53,11 +61,17 @@ class Product(models.Model):
     def save(self, *args, **kwargs):
         self.cost_price = 0
         all_product_ingredients = ProductIngredient.objects.filter(product=self)
+        all_product_overheads = ProductOverhead.objects.filter(product=self)
+
         for i in all_product_ingredients:
             ingredient_unit_cost = i.ingredient.unit_cost
             ingredient_quantity = i.quantity
             ingredient_total_cost = ingredient_unit_cost*ingredient_quantity
             self.cost_price += ingredient_total_cost
+
+        for i in all_product_overheads:
+            self.cost_price += i.cost
+
         self.selling_price = self.cost_price + (self.cost_price*(self.profit_percent/100.0))
         super(Product, self).save(*args, **kwargs)
 
@@ -68,10 +82,19 @@ class ProductIngredient(models.Model):
     """
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
-    quantity = models.IntegerField(help_text="quantity of unit of this ingredient in a product")
+    quantity = models.FloatField(help_text="quantity of unit of this ingredient in a product")
 
     def __str__(self):
         return self.product.name+" | "+self.ingredient.name
+
+
+class ProductOverhead(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    overheaditem = models.ForeignKey(OverheadItem, on_delete=models.CASCADE)
+    cost = models.FloatField(help_text='Total Cost of overhead item')
+
+    def __str__(self):
+        return self.product.name+" | "+self.overheaditem.name+" | "+str(self.cost)
 
 
 class Order(models.Model):

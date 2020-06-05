@@ -28,6 +28,7 @@ def order(request):
         form = OrderItemForm()
     return render(request, 'inventory_and_sales/new.html', {'form': form})
 
+
 def detail(request, pk):
     product = get_object_or_404(Product, pk=pk)
     return render(request, 'inventory_and_sales/detail.html', {'product': product})

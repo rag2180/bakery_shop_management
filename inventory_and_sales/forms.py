@@ -5,7 +5,7 @@ from .models import Product, OrderItem
 class ProductForm(ModelForm):
     class Meta:
         model = Product
-        fields = ['name', 'category', 'quantity', 'unit']
+        fields = ['name', 'category']
 
 
 class OrderItemForm(ModelForm):
