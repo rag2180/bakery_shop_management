@@ -20,7 +20,9 @@ class Customer(models.Model):
 
 
 class Category(models.Model):
-    name = models.CharField(max_length=255, help_text="Category of a product. Eg: Raw/Final", unique=True)
+    name = models.CharField(max_length=255, help_text="Category of a product. Eg: Cake, Biscuits etc.", unique=True)
+    unit = models.CharField(max_length=255, help_text='Unit of measurement', choices=[('lb', 'pound'), ('gm', 'grams'),
+                                        ('kg', 'kilogram'), ('pcs', 'piece')], default='kg')
     description = models.CharField(max_length=255, null=True)
 
     def __str__(self):
@@ -48,15 +50,15 @@ class OverheadItem(models.Model):
 class Product(models.Model):
     name = models.CharField(help_text="Name of Item", max_length=255, unique=True)
     category = models.ForeignKey(Category, help_text="Category of this product item", on_delete=models.CASCADE)
-    # quantity = models.IntegerField(help_text="Quantity of item stored")
-    # unit = models.CharField(help_text="units of quantity", max_length=255, null=True, blank=True)
     profit_percent = models.IntegerField(help_text='profit in % that you want from this product', default=0)
-    cost_price = models.FloatField(help_text="This is calculated using ingredients and overheads of your product.",
+    cost_price = models.FloatField(help_text="This is calculated using ingredients and overheads of your product. "
+                                             "This is cost price per unit.",
                                    null=True, blank=True)
     selling_price = models.FloatField(help_text="Calculated as per profit", null=False, blank=False, default=0.0)
+    note = models.CharField(max_length=1000, help_text='Note for self about product', null=True, blank=True)
 
     def __str__(self):
-        return self.name
+        return self.name+" | Rs."+str(self.cost_price)+"/"+str(self.category.unit)
 
     def save(self, *args, **kwargs):
         self.cost_price = 0
@@ -73,6 +75,8 @@ class Product(models.Model):
             self.cost_price += i.cost
 
         self.selling_price = self.cost_price + (self.cost_price*(self.profit_percent/100.0))
+        self.cost_price = round(self.cost_price)
+        self.selling_price = round(self.selling_price)
         super(Product, self).save(*args, **kwargs)
 
 
@@ -104,6 +108,7 @@ class Order(models.Model):
     order_datetime = models.DateTimeField(name="Datetime", help_text="Date and time when order was placed", null=True, default=datetime.now())
     total_price = models.FloatField(verbose_name="Total Amount", default=0.0, null=True)
     timestamp = models.DateTimeField(auto_now=True)
+    note_from_customer = models.CharField(max_length=255, help_text='Note from customers', null=True, blank=True)
 
     def __str__(self):
         return "{} | {} | {}".format(self.id, self.customer.name, self.total_price)
