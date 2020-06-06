@@ -2,16 +2,46 @@
 {% block content %}
 
 
-    <h1>Product Information</h1>
+    <h4>Product Information: {{ product.name }}</h4>
 
-        <div class="buttion_place">
-            <a href="{% url 'edit' product.pk %}" class="btn btn-primary btn-lg active" role="button" aria-pressed="true"> + Edit Product</a>
-        </div>
+{#        <div class="buttion_place">#}
+{#            <a href="{% url 'edit' product.pk %}" class="btn btn-primary btn-lg active" role="button" aria-pressed="true"> + Edit Product</a>#}
+{#        </div>#}
 
-       <label><h5>Name</h5></label>:  {{ product.name }} <br>
-       <label><h5>Category</h5></label>: {{ product.cetagory }}<br>
-{#       <label><h5>Supplier</h5></label>: {{ product.supplier }}<br>#}
-       <label><h5>Cost Price</h5></label>: {{ product.cost_price }}<br>
-{#       <label><h5>Description</h5>{{ product.description }}</label>#}
+       <label><h6>Category</h6></label>: {{ product.category }}<br>
+       <label><h6>Cost Price</h6></label>: Rs.{{ product.cost_price }}<br>
+       <label><h6>Profit (%)</h6></label>: {{ product.profit_percent }} %<br>
+       <label><h6>Selling Price</h6></label>: Rs.{{ product.selling_price }}<br>
+       <label><h6>Note</h6></label>: {{ product.note }}<br>
+       <label><h6>Ingredients</h6></label>:
+        <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Unit Cost</th>
+            <th>Quantity</th>
+            <th>Total Cost</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for ing in ingredients %}
+
+            <tr>
+{#                <th>#}
+{#                    <a href="{% url 'detail' ingredient.pk %}">#}
+{#                        {{ ingredient.pk }}#}
+{#                    </a>#}
+{#                </th>#}
+                <td>{{ ing.ingredient.name }}</td>
+                <td>Rs. {{ ing.ingredient.unit_cost }}/{{ ing.ingredient.unit }}</td>
+                <td>{{ ing.quantity }} {{ ing.ingredient.unit }}</td>
+                <td>Rs. {% widthratio ing.quantity 1 ing.ingredient.unit_cost %}</td>
+            </tr>
+        {% endfor %}
+
+        </tbody>
+    </table>
+
+
 
 {% endblock %}

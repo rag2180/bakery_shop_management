@@ -5,7 +5,18 @@
     <form  method="POST">
     {% csrf_token %}
 
-      {% for field in form %}
+      {% for field in product_form %}
+        <div class="form-group row">
+            <label for="id_{{ field.name }}" class="col-2 col-form-label">{{ field.label }}</label>
+
+            <div class="col-10">
+
+                {{ field }}
+            </div>
+        </div>
+        {% endfor %}
+
+      {% for field in product_ingredient_form %}
         <div class="form-group row">
             <label for="id_{{ field.name }}" class="col-2 col-form-label">{{ field.label }}</label>
 
