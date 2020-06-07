@@ -1,16 +1,32 @@
 from django.forms import ModelForm
 from .models import Product, OrderItem, Category, Ingredient, OverheadItem, ProductIngredient, ProductOverhead
 from django.forms import modelformset_factory
-from  django import forms
+from django.forms import formset_factory
+from django import forms
+
+
+class ProductIngredientForm(ModelForm):
+    prefix = 'productingredient'
+
+    class Meta:
+        model = ProductIngredient
+        fields = ['ingredient', 'quantity']
 
 
 class ProductForm(ModelForm):
+    prefix = 'product'
+
     class Meta:
         model = Product
         fields = ['name', 'category', 'profit_percent', 'note']
 
 
+ProductFormset = formset_factory(ProductForm, extra=1)
+
+
 class CategoryForm(ModelForm):
+    prefix = 'category'
+
     class Meta:
         model = Category
         fields = '__all__'
@@ -34,25 +50,7 @@ class OverheadItemForm(ModelForm):
         fields = '__all__'
 
 
-class ProductIngredientForm(ModelForm):
-    class Meta:
-        model = ProductIngredient
-        fields = ['ingredient', 'quantity']
-
-
 class ProductOverheadForm(ModelForm):
     class Meta:
         model = ProductOverhead
         fields = '__all__'
-
-
-# ProductIngredientFormset = modelformset_factory(
-#     ProductIngredientForm,
-#     fields=('ingredient', 'quantity'),
-#     extra=1,
-#     widgets={'name': forms.TextInput(attrs={
-#             'class': 'form-control',
-#             'placeholder': 'Enter Ingredient for this product'
-#         })
-#     }
-# )
