@@ -1,5 +1,15 @@
-{% extends 'inventory_and_sales/base.html' %} {% block content %}
+{% extends 'inventory_and_sales/base.html' %}
+{% block content %}
 <h2 class="product_heder">Add a new Product </h2>
+
+{% if alert %}
+    <script>alert("Product Already Exists! If you don't think so - Please contact Raghav!")</script>
+{% endif %}
+
+{#<form action="." method="post">#}
+{#{{ product_form.as_p }}#}
+{#<input type="submit" value="Add Product">#}
+{#</form>#}
 
 <div class="container col-md-10">
     <form  method="POST">
@@ -15,24 +25,47 @@
             </div>
         </div>
         {% endfor %}
-
-      {% for field in product_ingredient_form %}
-        <div class="form-group row">
-            <label for="id_{{ field.name }}" class="col-2 col-form-label">{{ field.label }}</label>
-
-            <div class="col-10">
-
-                {{ field }}
-            </div>
-        </div>
-        {% endfor %}
-
-
         <div class="form-group row">
             <div class="offset-sm-2 col-sm-6">
-                <button type="submit" class="btn btn-primary">Add Product</button>
+                <button type="submit" class="btn btn-primary">Add Ingredients</button>
             </div>
         </div>
     </form>
 </div>
+
+
+{#<form class="form-horizontal" method="POST" action="">#}
+{#    {% csrf_token %}#}
+{#<div class="row spacer">#}
+{#<div class="col-2">#}
+{#    <label>{{product_form.name.label}}</label>#}
+{#</div>#}
+{#<div class="col-4">#}
+{#    <div class="input-group">#}
+{#        {{product_form.name}}#}
+{#    </div>#}
+{#</div>#}
+{#</div>#}
+{#{{ product_ingredient_formset.management_form }}#}
+{#{% for form in product_ingredient_formset %}#}
+{#<div class="row form-row spacer">#}
+{#    <div class="col-2">#}
+{#        <label>{{form.name.label}}</label>#}
+{#    </div>#}
+{#    <div class="col-4">#}
+{#        <div class="input-group">#}
+{#            {{form.name}}#}
+{#            <div class="input-group-append">#}
+{#                <button class="btn btn-success add-form-row">+</button>#}
+{#            </div>#}
+{#        </div>#}
+{#    </div>#}
+{#</div>#}
+{#{% endfor %}#}
+{#<div class="row spacer">#}
+{#    <div class="col-4 offset-2">#}
+{#        <button type="submit" class="btn btn-block btn-primary">Create</button>#}
+{#    </div>#}
+{#</div>#}
+{#</form>#}
 {% endblock %}

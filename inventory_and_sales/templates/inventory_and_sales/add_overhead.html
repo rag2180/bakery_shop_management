@@ -1,0 +1,14 @@
+{% extends 'inventory_and_sales/base.html' %}
+{% block content %}
+<h3>Add/Edit {{ type }} for Product: {{ product.name }}</h3><br>
+<form method="POST">
+    {% csrf_token %}
+    {{ formset.as_p }}
+    <button type="submit">Add {{ type }}</button>
+</form>
+
+<p>Once you have finished adding overheads, Click below to proceed to Products Page</p>
+<form method="GET" action='/products/'>
+    <button type="submit">Finish</button>
+</form>
+{% endblock %}

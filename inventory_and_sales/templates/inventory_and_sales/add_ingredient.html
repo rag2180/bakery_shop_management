@@ -1,9 +1,14 @@
 {% extends 'inventory_and_sales/base.html' %}
 {% block content %}
-<h3>Edit Ingredients for Product: {{ product.name }}</h3><br>
+<h3>Add/Edit {{ type }} for Product: {{ product.name }}</h3><br>
 <form method="POST">
     {% csrf_token %}
     {{ formset.as_p }}
-    <button type="submit">Add Ingredient</button>
+    <button type="submit">Add</button>
+</form>
+<br>
+<p>Once you have finished adding ingredients, Click below to proceed to add overheads</p>
+<form method="GET" action='/add_overhead_of_product/{{ product.id }}/'>
+    <button type="submit">Add Overhead Costs</button>
 </form>
 {% endblock %}

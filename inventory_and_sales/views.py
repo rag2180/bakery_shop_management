@@ -63,43 +63,29 @@ def detail(request, pk):
 def add_product(request):
     if request.method == 'POST':
         print("Post Request")
-        formset = ProductFormset(request.POST)
-        print(formset)
-        # print(formset.is_valid())
-        # if formset.is_valid():
-        for form in formset:
-            # extract name from each form and save
-            name = form.cleaned_data.get('name')
-            # save book instance
-            if name:
-                print("Save To DB")
-                # Book(name=name).save()
-        # once all books are saved, redirect to book list view
-        return redirect('add_product')
-        # product_form = ProductForm()
-        # product_ingredient_form = ProductIngredient()
-        # product_form = ProductForm(request.POST)
-        # product_ingredient_form = ProductIngredientForm()
-        # product_ingredient_formset = ProductIngredientFormset()
-        # print(dir(product_form))
-        # if product_form.is_valid():
-        #     # product = form.save(commit=True)
-        #     product_form.save()
-        #
-        #     # product = Product()
-        #     # product.name = form.cleaned_data['name']
-        #     # product.cetagory = form.cleaned_data['cetagory']
-        #     # product.supplier = form.cleaned_data['supplier']
-        #     # product.unit_price = form.cleaned_data['unit_price']
-        #     # product.description = form.cleaned_data['description']
-        #     # product.save()
-        #     # return redirect('detail', pk=product.pk)
-        #     return redirect('index')
+        product_form = ProductForm(request.POST)
+        # print(product_form)
+        print(product_form.is_valid())
+        if product_form.is_valid():
+            print("Form is Valid")
+            print(product_form.cleaned_data)
+            product_name = product_form.cleaned_data['name']
+            product_category = product_form.cleaned_data['category']
+            profit_percent = product_form.cleaned_data['profit_percent']
+            note = product_form.cleaned_data['note']
+            product = Product.objects.create(name=product_name, category=product_category, profit_percent=profit_percent,
+                                          note=note)
+            print(product)
+            redirect_path = 'add_ingredient_of_product/{}'.format(product.id)
+            return redirect(redirect_path, product_id=product.id)
+        else:
+            product_form = ProductForm()
+            return render(request, 'inventory_and_sales/add_product.html', {'alert': True, 'product_form': product_form})
+
     else:
         product_form = ProductForm()
-        formset = ProductFormset(request.GET or None)
 
-    return render(request, 'inventory_and_sales/add_product.html', {'formset': formset})
+    return render(request, 'inventory_and_sales/add_product.html', {'product_form': product_form})
 
 
 def add_ingredient_of_product(request, product_id):
@@ -110,9 +96,26 @@ def add_ingredient_of_product(request, product_id):
         formset = ProductIngredientFormset(request.POST, instance=product)
         if formset.is_valid():
             formset.save()
-            return redirect('inventory_and_sales/add_ingredient.html', product_id=product.id)
+            product.save()
+            return redirect('inventory_and_sales/add_ingredient', product_id=product.id)
 
     formset = ProductIngredientFormset(instance=product)
     return render(request, 'inventory_and_sales/add_ingredient.html', {'formset': formset,
-                                                                       'product': product})
+                                                                       'product': product,
+                                                                       'type': 'Ingredients'})
 
+def add_overhead_of_product(request, product_id):
+    product = Product.objects.get(pk=product_id)
+    ProductOverheadFormset = inlineformset_factory(Product, ProductOverhead, fields=('overheaditem', 'cost',))
+
+    if request.method == "POST":
+        formset = ProductOverheadFormset(request.POST, instance=product)
+        if formset.is_valid():
+            formset.save()
+            product.save()
+            return redirect('inventory_and_sales/add_overhead', product_id=product.id)
+
+    formset = ProductOverheadFormset(instance=product)
+    return render(request, 'inventory_and_sales/add_overhead.html', {'formset': formset,
+                                                                       'product': product,
+                                                                       'type': 'Overheads'})
