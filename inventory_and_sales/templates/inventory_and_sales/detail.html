@@ -3,6 +3,9 @@
 
 
     <h4>Product Information: {{ product.name }}</h4>
+    <div class="buttion_place">
+        <a href="{% url 'add_product' %}" class="btn btn-primary btn-lg active" role="button" aria-pressed="true"> + Edit Product</a>
+    </div>
 
 {#        <div class="buttion_place">#}
 {#            <a href="{% url 'edit' product.pk %}" class="btn btn-primary btn-lg active" role="button" aria-pressed="true"> + Edit Product</a>#}
