@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from  django.forms import modelformset_factory, inlineformset_factory
 
@@ -33,6 +33,23 @@ def products(request):
     context = {'products': products}
     return render(request, 'inventory_and_sales/products.html', context)
     # return render(request, 'inventory_and_sales/list.html', context)
+
+
+def edit_product(request, product_id):
+    print("Inside edit product with id - {}".format(product_id))
+    product = get_object_or_404(Product, id=product_id)
+    print(product)
+    if request.method == "POST":
+        product_form = ProductForm(request.POST, instance=product)
+        if product_form.is_valid():
+            product = product_form.save(commit=False)
+            product.save()
+            redirect_path = '/add_ingredient_of_product/{}'.format(product.id)
+            return redirect(redirect_path, product_id=product.id)
+    else:
+        product_form = ProductForm(instance=product)
+    # return HttpResponse("Inside edit product with id - {}".format(product_id))
+    return render(request, 'inventory_and_sales/add_product.html', {'product_form': product_form})
 
 
 def order(request):
