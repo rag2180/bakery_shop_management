@@ -1,15 +1,17 @@
 {% extends 'inventory_and_sales/base.html' %}
 {% block content %}
+<h2 class="product_heder">Add a new Customer </h2>
 
 {% if alert %}
-    <script>alert("Overhead Already Exists! If you don't think so - Please contact Raghav!")</script>
+    <script>alert("Customer Already Exists! If you don't think so - Please contact Raghav!")</script>
 {% endif %}
+
 
 <div class="container col-md-10">
     <form  method="POST">
     {% csrf_token %}
 
-      {% for field in overhead_item_form %}
+      {% for field in customer_form %}
         <div class="form-group row">
             <label for="id_{{ field.name }}" class="col-2 col-form-label">{{ field.label }}</label>
 
@@ -21,7 +23,7 @@
         {% endfor %}
         <div class="form-group row">
             <div class="offset-sm-2 col-sm-6">
-                <button type="submit" class="btn btn-primary">Add Overhead</button>
+                <button type="submit" class="btn btn-primary">Add Customer</button>
             </div>
         </div>
     </form>

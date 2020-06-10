@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-
+from datetime import datetime
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from  django.forms import formset_factory, inlineformset_factory
 
-from .models import Product, ProductIngredient, ProductOverhead, Ingredient
+from .models import Product, ProductIngredient, ProductOverhead, Ingredient, Customer
 from .forms import ProductForm, OrderItemForm, ProductIngredientForm, \
-    ProductFormset, IngredientForm, OverheadItem, OverheadItemForm
+    ProductFormset, IngredientForm, OverheadItem, OverheadItemForm, CustomerForm
 
 
 def home(request):
@@ -36,6 +36,7 @@ def products(request):
 
 
 def ingredients_and_overheads(request):
+    print("inside ingredients_and_overheads")
     ingredients = Ingredient.objects.all()
     overheads = OverheadItem.objects.all()
     print("All INGREDIENTS and Overheads.....")
@@ -43,6 +44,44 @@ def ingredients_and_overheads(request):
     context = {'ingredients': ingredients,
                'overheads': overheads}
     return render(request, 'inventory_and_sales/ingredients.html', context)
+
+
+def customers(request):
+    print("inside customers")
+    customers = Customer.objects.all()
+    return render(request, 'inventory_and_sales/customers.html', {'customers': customers})
+
+
+def add_customer(request):
+    print("inside add_customer")
+    if request.method == 'POST':
+        print("Post Request")
+        customer_form = CustomerForm(request.POST)
+        # print(product_form)
+        print(customer_form.is_valid())
+        if customer_form.is_valid():
+            print("Form is Valid")
+            print(customer_form.cleaned_data)
+            customer_name = customer_form.cleaned_data['name']
+            phone_number = customer_form.cleaned_data['phone_number']
+            address = customer_form.cleaned_data['address']
+            city = customer_form.cleaned_data['city']
+            email_id = customer_form.cleaned_data['email_id']
+            date = datetime.now()
+            customer = Customer.objects.create(name=customer_name, phone_number=phone_number,
+                                             address=address, email_id=email_id,
+                                             city=city, date=date)
+            print(customer)
+            return redirect("customers")
+        else:
+            customer_form = CustomerForm()
+            return render(request, 'inventory_and_sales/add_customer.html',
+                          {'alert': True, 'customer_form': customer_form})
+
+    else:
+        customer_form = CustomerForm()
+
+    return render(request, 'inventory_and_sales/add_customer.html', {'customer_form': customer_form})
 
 
 def edit_product(request, product_id):
@@ -62,6 +101,38 @@ def edit_product(request, product_id):
     return render(request, 'inventory_and_sales/add_product.html', {'product_form': product_form})
 
 
+def edit_ingredient(request, ingredient_id):
+    ingredient = get_object_or_404(Ingredient, id=ingredient_id)
+    print(ingredient)
+    if request.method == "POST":
+        ingredient_form = IngredientForm(request.POST, instance=ingredient)
+        if ingredient_form.is_valid():
+            ingredient = ingredient_form.save(commit=False)
+            ingredient.save()
+            redirect_path = '/ingredients_and_overheads/'.format(ingredient.id)
+            return redirect(redirect_path)
+    else:
+        ingredient_form = IngredientForm(instance=ingredient)
+
+    return render(request, 'inventory_and_sales/create_ingredient.html', {'ingredient_form': ingredient_form})
+
+
+def edit_overhead(request, overhead_id):
+    overhead = get_object_or_404(OverheadItem, id=overhead_id)
+    print(overhead)
+    if request.method == "POST":
+        overhead_item_form = OverheadItemForm(request.POST, instance=overhead)
+        if overhead_item_form.is_valid():
+            ingredient = overhead_item_form.save(commit=False)
+            ingredient.save()
+            redirect_path = '/ingredients_and_overheads/'.format(ingredient.id)
+            return redirect(redirect_path)
+    else:
+        overhead_item_form = OverheadItemForm(instance=overhead)
+
+    return render(request, 'inventory_and_sales/create_overhead.html', {'overhead_item_form': overhead_item_form})
+
+
 def order(request):
     if request.method == 'POST':
         form = OrderItemForm(request.POST)
@@ -75,6 +146,12 @@ def order(request):
 
 
 def detail(request, pk):
+    """
+    Product Detail Page
+    :param request:
+    :param pk:
+    :return:
+    """
     print("Inside Detail...")
     product = get_object_or_404(Product, pk=pk)
     all_product_ingredients = ProductIngredient.objects.filter(product=product)
@@ -85,6 +162,36 @@ def detail(request, pk):
     return render(request, 'inventory_and_sales/detail.html', {'product': product,
                                                                'ingredients': all_product_ingredients,
                                                                'overheads': all_product_overheads})
+
+def customer_detail(request, customer_id):
+    """
+    Customer Detail Page
+    :param request:
+    :param customer_id:
+    :return:
+    """
+    print("Inside customer detail")
+    customer = get_object_or_404(Customer, id=customer_id)
+    # TODO: Show all past orders by this customer
+    return render(request, 'inventory_and_sales/customer_detail.html', {'customer': customer})
+
+
+def edit_customer(request, customer_id):
+    print("inside edit customer")
+    customer = get_object_or_404(Customer, id=customer_id)
+    print(customer)
+    if request.method == "POST":
+        customer_form = CustomerForm(request.POST, instance=customer)
+        if customer_form.is_valid():
+            ingredient = customer_form.save(commit=False)
+            ingredient.save()
+            redirect_path = '/customers/'
+            return redirect(redirect_path)
+    else:
+        customer_form = CustomerForm(instance=customer)
+
+    return render(request, 'inventory_and_sales/add_customer.html', {'customer_form': customer_form})
+
 
 def add_product(request):
     if request.method == 'POST':
@@ -116,24 +223,17 @@ def add_product(request):
 
 def create_ingredient(request):
     print("Creating Ingredient")
-    IngredientFormset = formset_factory(IngredientForm)
 
     if request.method == "POST":
-        ingredient_formset = IngredientFormset(request.POST)
-        if ingredient_formset.is_valid():
-            for formset in ingredient_formset:
-                print(formset)
-                if formset.is_valid():
-                    formset.save()
-                else:
-                    print("formset is not valid")
-            return redirect('create_ingredient')
+        ingredient_form = IngredientForm(request.POST)
+        if ingredient_form.is_valid():
+                ingredient_form.save()
         else:
             print("INGREDIENT NOT VALID")
-            return render(request, 'inventory_and_sales/create_ingredient.html', {'alert': True, 'ingredient_formset': ingredient_formset})
+            return render(request, 'inventory_and_sales/create_ingredient.html', {'alert': True, 'ingredient_form': ingredient_form})
 
-    ingredient_formset = IngredientFormset()
-    return render(request, 'inventory_and_sales/create_ingredient.html', {'ingredient_formset': ingredient_formset})
+    ingredient_form = IngredientForm()
+    return render(request, 'inventory_and_sales/create_ingredient.html', {'ingredient_form': ingredient_form})
 
 
 def create_overheads(request):

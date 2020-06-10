@@ -1,5 +1,5 @@
 from django.forms import ModelForm
-from .models import Product, OrderItem, Category, Ingredient, OverheadItem, ProductIngredient, ProductOverhead
+from .models import Product, OrderItem, Category, Ingredient, OverheadItem, ProductIngredient, ProductOverhead, Customer
 from django.forms import modelformset_factory
 from django.forms import formset_factory
 from django import forms
@@ -53,4 +53,10 @@ class OverheadItemForm(ModelForm):
 class ProductOverheadForm(ModelForm):
     class Meta:
         model = ProductOverhead
+        fields = '__all__'
+
+
+class CustomerForm(ModelForm):
+    class Meta:
+        model = Customer
         fields = '__all__'

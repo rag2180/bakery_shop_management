@@ -1,0 +1,16 @@
+{% extends 'inventory_and_sales/base.html' %}
+{% block content %}
+
+
+    <h4>Customer Information: {{ customer.name }}</h4>
+        <div class="buttion_place">
+            <a href="{% url 'edit_customer' customer_id=customer.id %}" class="btn btn-primary btn-lg active" role="button" aria-pressed="true"> + Edit Customer</a>
+        </div>
+       <label><h6>Name</h6></label>: {{ customer.name }}<br>
+       <label><h6>Phone Number</h6></label>: {{ customer.phone_number }}<br>
+       <label><h6>Address </h6></label>: {{ customer.address }} <br>
+       <label><h6>City </h6></label>: {{ customer.city }}<br>
+       <label><h6>Email ID</h6></label>: {{ customer.email_id }}<br>
+       <label><h6>Date Added</h6></label>: {{ customer.date }}<br><br>
+
+{% endblock %}
