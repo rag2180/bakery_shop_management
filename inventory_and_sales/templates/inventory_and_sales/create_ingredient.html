@@ -1,0 +1,10 @@
+{% extends 'inventory_and_sales/base.html' %}
+{% block content %}
+
+<h3>Create Ingredients</h3><br>
+<form method="POST">
+    {% csrf_token %}
+    {{ ingredient_formset.as_p }}
+    <button type="submit">Add</button>
+</form>
+{% endblock %}

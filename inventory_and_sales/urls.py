@@ -4,6 +4,9 @@ from .views import *
 urlpatterns = [
     url(r'^$', home, name="home"),
     url(r'^products', products, name="products"),
+    url(r'^ingredients_and_overheads', ingredients_and_overheads, name="ingredients_and_overheads"),
+    url(r'^create_ingredient', create_ingredient, name="create_ingredient"),
+    url(r'^create_overheads', create_overheads, name="create_overheads"),
     url(r'^(?P<pk>\d+)$', detail, name="detail"),
     url(r'^add_product', add_product, name="add_product"),
     url(r'^add_ingredient_of_product/(?P<product_id>\d+)/', add_ingredient_of_product, name="add_ingredient_of_product"),

@@ -41,7 +41,7 @@ class Ingredient(models.Model):
 
 
 class OverheadItem(models.Model):
-    name = models.CharField(help_text='Eg: Electricity, Labour, Packaging etc.', max_length=255)
+    name = models.CharField(help_text='Eg: Electricity, Labour, Packaging etc.', max_length=255, unique=True)
 
     def __str__(self):
         return self.name

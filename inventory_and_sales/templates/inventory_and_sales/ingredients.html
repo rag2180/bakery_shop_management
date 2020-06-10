@@ -1,0 +1,67 @@
+{% extends 'inventory_and_sales/base.html' %}
+
+{% block content %}
+<center><h3>Ingredients</h3></center>
+    <div class="buttion_place">
+        <a href="{% url 'create_ingredient' %}" class="btn btn-secondary btn-lg active" role="button" aria-pressed="true"> + Create Ingredient</a>
+    </div>
+
+    <table class="table table-hover">
+        <thead>
+        <tr>
+{#            <th>#</th>#}
+            <th>Name</th>
+            <th>Unit</th>
+            <th>Unit Cost</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for ingredient in ingredients %}
+
+            <tr>
+{#                <th>#}
+{#                    <a href="{% url 'detail' product.pk %}">#}
+{#                        {{ product.pk }}#}
+{#                    </a>#}
+{#                </th>#}
+                <td>{{ ingredient.name }}</td>
+                <td>{{ ingredient.unit }}</td>
+                <td>{{ ingredient.unit_cost }}</td>
+{#                <td><a href="{% url 'edit_product' product_id=product.id %}"><button type="button" class="btn btn-default"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>Edit</button> </a> </td>#}
+            </tr>
+        {% endfor %}
+
+        </tbody>
+    </table>
+
+<center><h3>Overheads</h3></center>
+    <div class="buttion_place">
+        <a href="{% url 'create_overheads' %}" class="btn btn-secondary btn-lg active" role="button" aria-pressed="false"> + Create Overheads</a>
+    </div>
+
+    <table class="table table-hover">
+        <thead>
+        <tr>
+{#            <th>#</th>#}
+            <th>Name</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for overhead in overheads %}
+
+            <tr>
+{#                <th>#}
+{#                    <a href="{% url 'detail' product.pk %}">#}
+{#                        {{ product.pk }}#}
+{#                    </a>#}
+{#                </th>#}
+                <td>{{ overhead.name }}</td>
+{#                <td><a href="{% url 'edit_product' product_id=product.id %}"><button type="button" class="btn btn-default"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>Edit</button> </a> </td>#}
+            </tr>
+        {% endfor %}
+
+        </tbody>
+    </table>
+
+{% endblock %}
+

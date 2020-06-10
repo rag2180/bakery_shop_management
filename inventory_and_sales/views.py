@@ -3,11 +3,11 @@ from __future__ import unicode_literals
 
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
-from  django.forms import modelformset_factory, inlineformset_factory
+from  django.forms import formset_factory, inlineformset_factory
 
-from .models import Product, ProductIngredient, ProductOverhead
+from .models import Product, ProductIngredient, ProductOverhead, Ingredient
 from .forms import ProductForm, OrderItemForm, ProductIngredientForm, \
-    ProductFormset
+    ProductFormset, IngredientForm, OverheadItem, OverheadItemForm
 
 
 def home(request):
@@ -33,6 +33,16 @@ def products(request):
     context = {'products': products}
     return render(request, 'inventory_and_sales/products.html', context)
     # return render(request, 'inventory_and_sales/list.html', context)
+
+
+def ingredients_and_overheads(request):
+    ingredients = Ingredient.objects.all()
+    overheads = OverheadItem.objects.all()
+    print("All INGREDIENTS and Overheads.....")
+    print(ingredients)
+    context = {'ingredients': ingredients,
+               'overheads': overheads}
+    return render(request, 'inventory_and_sales/ingredients.html', context)
 
 
 def edit_product(request, product_id):
@@ -76,7 +86,6 @@ def detail(request, pk):
                                                                'ingredients': all_product_ingredients,
                                                                'overheads': all_product_overheads})
 
-
 def add_product(request):
     if request.method == 'POST':
         print("Post Request")
@@ -103,6 +112,44 @@ def add_product(request):
         product_form = ProductForm()
 
     return render(request, 'inventory_and_sales/add_product.html', {'product_form': product_form})
+
+
+def create_ingredient(request):
+    print("Creating Ingredient")
+    IngredientFormset = formset_factory(IngredientForm)
+
+    if request.method == "POST":
+        ingredient_formset = IngredientFormset(request.POST)
+        if ingredient_formset.is_valid():
+            for formset in ingredient_formset:
+                print(formset)
+                if formset.is_valid():
+                    formset.save()
+                else:
+                    print("formset is not valid")
+            return redirect('create_ingredient')
+        else:
+            print("INGREDIENT NOT VALID")
+            return render(request, 'inventory_and_sales/create_ingredient.html', {'alert': True, 'ingredient_formset': ingredient_formset})
+
+    ingredient_formset = IngredientFormset()
+    return render(request, 'inventory_and_sales/create_ingredient.html', {'ingredient_formset': ingredient_formset})
+
+
+def create_overheads(request):
+    print("creating overheads")
+    if request.method == "POST":
+        overhead_item_form = OverheadItemForm(request.POST)
+        if overhead_item_form.is_valid():
+            overhead_item_form.save()
+        else:
+            print("form is not valid")
+            return render(request, 'inventory_and_sales/create_overhead.html',
+                          {'alert': True, 'overhead_item_form': overhead_item_form})
+        return redirect('create_overheads')
+
+    overhead_item_form = OverheadItemForm()
+    return render(request, 'inventory_and_sales/create_overhead.html', {'overhead_item_form': overhead_item_form})
 
 
 def add_ingredient_of_product(request, product_id):

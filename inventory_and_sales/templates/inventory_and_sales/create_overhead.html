@@ -1,0 +1,10 @@
+{% extends 'inventory_and_sales/base.html' %}
+{% block content %}
+
+<h3>Create Overhead</h3><br>
+<form method="POST">
+    {% csrf_token %}
+    {{ overhead_item_form.as_p }}
+    <button type="submit">Add</button>
+</form>
+{% endblock %}
