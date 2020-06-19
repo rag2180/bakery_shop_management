@@ -1,0 +1,14 @@
+{% extends 'inventory_and_sales/base.html' %}
+{% block content %}
+<h3>Add/Edit Item for Order: {{ order.id }}</h3><br>
+<form method="POST">
+    {% csrf_token %}
+    {{ formset.as_p }}
+    <button type="submit">Add</button>
+</form>
+<br>
+<p>Once you have finished adding ingredients, Click below to proceed to main Order Page</p>
+<form method="GET" action='/order/{{ order.id }}/'>
+    <button type="submit">Complete Order</button>
+</form>
+{% endblock %}

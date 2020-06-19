@@ -1,0 +1,39 @@
+{% extends 'inventory_and_sales/base.html' %}
+{% block content %}
+
+
+    <h4>Order Information: {{ order.id }}</h4>
+    <div class="buttion_place">
+        <a href="{% url 'edit_order' order_id=order.id %}" class="btn btn-primary btn-lg active" role="button" aria-pressed="true"> + Edit Order</a>
+    </div>
+
+       <label><h6>Customer</h6></label>: {{ order.customer }}<br>
+       <label><h6>Delivery Status</h6></label>: {{ order.delivery_status }}<br>
+       <label><h6>Payment Status</h6></label>: {{ order.payment_status }}<br>
+       <label><h6>Order Datetime</h6></label>: {{ order.order_datetime }}<br>
+       <label><h6>Note From Customer</h6></label>: {{ order.note_from_customer }}<br>
+       <label><h6>Total Bill Amount</h6></label>: {{ order.total_price }}<br><br>
+
+            <table class="table table-hover">
+            <thead>
+            <tr>
+                <th>Product Name</th>
+                <th>Quantity</th>
+                <th>Total Cost</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for item in all_order_items %}
+
+                <tr>
+                    <td>{{ item.product_id.name }}</td>
+                    <td>{{ item.quantity }} </td>
+                    <td>Rs. {% widthratio item.quantity 1 item.product_id.selling_price %}</td>
+                </tr>
+            {% endfor %}
+
+            </tbody>
+            </table>
+        <br><br>
+
+{% endblock %}

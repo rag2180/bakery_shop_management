@@ -5,9 +5,9 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from  django.forms import formset_factory, inlineformset_factory
 
-from .models import Product, ProductIngredient, ProductOverhead, Ingredient, Customer
-from .forms import ProductForm, OrderItemForm, ProductIngredientForm, \
-    ProductFormset, IngredientForm, OverheadItem, OverheadItemForm, CustomerForm
+from .models import Product, ProductIngredient, ProductOverhead, Ingredient, Customer, Category, Order, OrderItem
+from .forms import ProductForm, OrderItemForm, ProductIngredientForm, OrderForm, \
+    ProductFormset, IngredientForm, OverheadItem, OverheadItemForm, CustomerForm, CategoryForm
 
 
 def home(request):
@@ -32,17 +32,25 @@ def products(request):
     print(products)
     context = {'products': products}
     return render(request, 'inventory_and_sales/products.html', context)
-    # return render(request, 'inventory_and_sales/list.html', context)
 
+
+def orders(request):
+    orders = Order.objects.all()
+    print("ALL ORDERS.....")
+    print(orders)
+    context = {'orders': orders}
+    return render(request, 'inventory_and_sales/orders.html', context)
 
 def ingredients_and_overheads(request):
     print("inside ingredients_and_overheads")
     ingredients = Ingredient.objects.all()
     overheads = OverheadItem.objects.all()
+    categories = Category.objects.all()
     print("All INGREDIENTS and Overheads.....")
     print(ingredients)
     context = {'ingredients': ingredients,
-               'overheads': overheads}
+               'overheads': overheads,
+               'categories': categories}
     return render(request, 'inventory_and_sales/ingredients.html', context)
 
 
@@ -133,16 +141,66 @@ def edit_overhead(request, overhead_id):
     return render(request, 'inventory_and_sales/create_overhead.html', {'overhead_item_form': overhead_item_form})
 
 
-def order(request):
-    if request.method == 'POST':
-        form = OrderItemForm(request.POST)
-        print(dir(form))
-        if form.is_valid():
-            form.save()
-            return redirect('order')
+def edit_category(request, category_id):
+    category = get_object_or_404(Category, id=category_id)
+    print(category)
+    if request.method == "POST":
+        category_form = CategoryForm(request.POST, instance=category)
+        if category_form.is_valid():
+            category = category_form.save(commit=False)
+            category.save()
+            redirect_path = '/ingredients_and_overheads/'
+            return redirect(redirect_path)
     else:
-        form = OrderItemForm()
-    return render(request, 'inventory_and_sales/add_product.html', {'form': form})
+        category_form = CategoryForm(instance=category)
+
+    return render(request, 'inventory_and_sales/create_category.html', {'category_form': category_form})
+
+
+def add_order(request):
+    if request.method == 'POST':
+        print("Post Request")
+        order_form = OrderForm(request.POST)
+        # print(product_form)
+        print(order_form.is_valid())
+        if order_form.is_valid():
+            print("Form is Valid")
+            print(order_form.cleaned_data)
+            customer = order_form.cleaned_data['customer']
+            delivery_status = order_form.cleaned_data['delivery_status']
+            payment_status = order_form.cleaned_data['payment_status']
+            note = order_form.cleaned_data['note_from_customer']
+            order = Order.objects.create(customer=customer, delivery_status=delivery_status,
+                                             payment_status=payment_status,
+                                             note_from_customer=note)
+            print(order)
+            redirect_path = 'add_items_of_order/{}'.format(order.id)
+            return redirect(redirect_path, order_id=order.id)
+        else:
+            order_form = OrderForm()
+            return render(request, 'inventory_and_sales/add_order.html',
+                          {'alert': True, 'product_form': order_form})
+
+    else:
+        order_form = OrderForm()
+
+    return render(request, 'inventory_and_sales/add_order.html', {'order_form': order_form})
+
+
+def edit_order(request, order_id):
+    print("Inside edit order with id - {}".format(order_id))
+    order = get_object_or_404(Order, id=order_id)
+    print(order)
+    if request.method == "POST":
+        order_form = OrderForm(request.POST, instance=order)
+        if order_form.is_valid():
+            order = order_form.save(commit=False)
+            order.save()
+            redirect_path = '/add_items_of_order/{}'.format(order.id)
+            return redirect(redirect_path, order_id=order.id)
+    else:
+        order_form = OrderForm(instance=order)
+    return render(request, 'inventory_and_sales/add_order.html', {'order_form': order_form})
 
 
 def detail(request, pk):
@@ -252,6 +310,22 @@ def create_overheads(request):
     return render(request, 'inventory_and_sales/create_overhead.html', {'overhead_item_form': overhead_item_form})
 
 
+def create_category(request):
+    print("creating categories")
+    if request.method == "POST":
+        category_form = CategoryForm(request.POST)
+        if category_form.is_valid():
+            category_form.save()
+        else:
+            print("form is not valid")
+            return render(request, 'inventory_and_sales/create_overhead.html',
+                          {'alert': True, 'category_form': category_form})
+        return redirect('create_category')
+
+    category_form = CategoryForm()
+    return render(request, 'inventory_and_sales/create_category.html', {'category_form': category_form})
+
+
 def add_ingredient_of_product(request, product_id):
     product = Product.objects.get(pk=product_id)
     ProductIngredientFormset = inlineformset_factory(Product, ProductIngredient, fields=('ingredient', 'quantity',))
@@ -268,6 +342,7 @@ def add_ingredient_of_product(request, product_id):
                                                                        'product': product,
                                                                        'type': 'Ingredients'})
 
+
 def add_overhead_of_product(request, product_id):
     product = Product.objects.get(pk=product_id)
     ProductOverheadFormset = inlineformset_factory(Product, ProductOverhead, fields=('overheaditem', 'cost',))
@@ -283,3 +358,28 @@ def add_overhead_of_product(request, product_id):
     return render(request, 'inventory_and_sales/add_overhead.html', {'formset': formset,
                                                                        'product': product,
                                                                        'type': 'Overheads'})
+
+
+def add_items_of_order(request, order_id):
+    order = Order.objects.get(pk=order_id)
+    OrderItemFormset = inlineformset_factory(Order, OrderItem, fields=('product_id', 'quantity',))
+
+    if request.method == "POST":
+        formset = OrderItemFormset(request.POST, instance=order)
+        if formset.is_valid():
+            formset.save()
+            order.save()
+            return redirect('inventory_and_sales/add_items_of_order', order_id=order.id)
+
+    formset = OrderItemFormset(instance=order)
+    return render(request, 'inventory_and_sales/add_items_of_order.html', {'formset': formset,
+                                                                       'order': order})
+
+def order_detail(request, order_id):
+    print("Inside customer detail")
+    order = get_object_or_404(Order, id=order_id)
+    all_order_items = OrderItem.objects.filter(order_id=order_id)
+    print(order)
+    print(all_order_items)
+    return render(request, 'inventory_and_sales/order_detail.html', {'order': order,
+                                                               'all_order_items': all_order_items})

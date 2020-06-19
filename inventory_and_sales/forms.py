@@ -1,5 +1,5 @@
 from django.forms import ModelForm
-from .models import Product, OrderItem, Category, Ingredient, OverheadItem, ProductIngredient, ProductOverhead, Customer
+from .models import Product, OrderItem, Category, Ingredient, OverheadItem, ProductIngredient, ProductOverhead, Customer, Order
 from django.forms import modelformset_factory
 from django.forms import formset_factory
 from django import forms
@@ -36,6 +36,12 @@ class IngredientForm(ModelForm):
     class Meta:
         model = Ingredient
         fields = '__all__'
+
+
+class OrderForm(ModelForm):
+    class Meta:
+        model = Order
+        fields = ['customer', 'delivery_status', 'payment_status', 'note_from_customer']
 
 
 class OrderItemForm(ModelForm):
