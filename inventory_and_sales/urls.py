@@ -25,9 +25,4 @@ urlpatterns = [
     url(r'^ingredient/(?P<ingredient_id>\d+)/edit/', edit_ingredient, name="edit_ingredient"),
     url(r'^overhead/(?P<overhead_id>\d+)/edit/', edit_overhead, name="edit_overhead"),
     url(r'^category/(?P<category_id>\d+)/edit/', edit_category, name="edit_category")
-    # url(r'^index', index, name="index"),
-    # url(r'^order', order, name="order"),
-    # url(r'^$', product, name="index"),
-    # url(r'^(?P<product_id>[0-9]+)$', detail, name="detail"),
-    # url(r'^edit/(?P<pk>\d+)$', edit, name="edit"),
 ]

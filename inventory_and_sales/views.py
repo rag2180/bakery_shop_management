@@ -41,6 +41,7 @@ def orders(request):
     context = {'orders': orders}
     return render(request, 'inventory_and_sales/orders.html', context)
 
+
 def ingredients_and_overheads(request):
     print("inside ingredients_and_overheads")
     ingredients = Ingredient.objects.all()
@@ -61,7 +62,7 @@ def customers(request):
 
 
 def add_customer(request):
-    print("inside add_customer")
+    print("inside add_customer - {}".format(request))
     if request.method == 'POST':
         print("Post Request")
         customer_form = CustomerForm(request.POST)
@@ -170,6 +171,7 @@ def add_order(request):
             delivery_status = order_form.cleaned_data['delivery_status']
             payment_status = order_form.cleaned_data['payment_status']
             note = order_form.cleaned_data['note_from_customer']
+            # order_datetime = order_form.cleaned_data['order_datetime']
             order = Order.objects.create(customer=customer, delivery_status=delivery_status,
                                              payment_status=payment_status,
                                              note_from_customer=note)

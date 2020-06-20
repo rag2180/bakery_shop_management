@@ -18,6 +18,9 @@
             <div class="col-10">
 
                 {{ field }}
+                {% if field.label == 'Customer' %}
+                    <a href="{% url 'add_customer' %}" class=".btn-sm" role="button" aria-pressed="true"> + Add Customer</a>
+                {% endif %}
             </div>
         </div>
         {% endfor %}
