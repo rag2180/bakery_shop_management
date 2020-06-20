@@ -1,6 +1,14 @@
 {% extends 'inventory_and_sales/base.html' %}
 {% block content %}
 
-<h1>WELCOME TO HOME PAGE</h1>
+<h4>Welcome to Karan's Bake House.</h4>
+
+<p>Following are some of the stats:</p>
+<ul>
+    <li><strong>Customers:</strong> {{ customers_count }}</li>
+    <li><strong>Orders:</strong> {{ orders_count }}</li>
+    <li><strong>Products:</strong> {{ products_count }}</li>
+    <li><strong>Total Lifetime Sale:</strong> Rs.{{ total_sale }}</li>
+</ul>
 
 {% endblock %}
